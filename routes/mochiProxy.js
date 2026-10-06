@@ -60,3 +60,33 @@ router.post('/netease/logout', (req,res)=>{
 })
 
 module.exports = router;
+
+const session = require('express-session');
+
+// session配置
+app.use(session({
+  secret: 'mochi‑netease‑secret‑2026',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false,
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+//跨域配置，只允许你的mochi网页访问后端
+const allowOrigin = /^https:\/\/Apricity-caleb\.github\.io$/;
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if(origin && allowOrigin.test(origin)){
+    res.setHeader('Access‑Control‑Allow‑Origin', origin);
+  }
+  res.setHeader('Access‑Control‑Allow‑Credentials','true');
+  res.setHeader('Access‑Control‑Allow‑Methods','GET,POST,OPTIONS');
+  res.setHeader('Access‑Control‑Allow‑Headers','Content‑Type');
+  if(req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+})
+
+//挂载我们刚刚写好的代理路由
+require('./routes/mochiProxy');
